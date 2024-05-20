@@ -76,7 +76,6 @@ public class ExpressionHelpers( ILoggerFactory? loggerFactory )
         return retVal;
     }
 
-    // thanx to https://gist.github.com/jrgcubano/6e4df87913411ee9db0c68efc5fc41a3 for this 
     public Action<TRoot, TProp>? CreatePropertySetter<TRoot, TProp>(
         Expression<Func<TRoot, TProp>> property,
         [ CallerMemberName ] string caller = ""
@@ -107,6 +106,43 @@ public class ExpressionHelpers( ILoggerFactory? loggerFactory )
         }
 
         var lambdaExpr = Expression.Lambda<Action<TRoot, TProp>>( prevExpr!, [rootArg, newValueArg] );
+
+        return lambdaExpr.Compile();
+    }
+
+    public Action<TRoot, object?>? CreateObjectPropertySetter<TRoot, TProp>(
+        Expression<Func<TRoot, TProp?>> property,
+        [CallerMemberName] string caller = ""
+    )
+    {
+        var propInfoPath = GetPropertyInfoPath(property);
+
+        // make the list root first
+        propInfoPath.Reverse();
+
+        if (propInfoPath.Count == 0)
+            return null;
+
+        var rootArg = Expression.Parameter(typeof(TRoot), "root");
+        var newValueArg = Expression.Parameter(typeof(object), "newValue");
+
+        Expression? prevExpr = null;
+
+        foreach (var propInfo in propInfoPath)
+        {
+            // first/root element
+            var curExpr = propInfo == propInfoPath.First() ? rootArg : prevExpr;
+
+            prevExpr = Expression.Property(curExpr, propInfo);
+
+            if( propInfo != propInfoPath.Last() )
+                continue;
+
+            var objNewValue = Expression.Convert( newValueArg, typeof( TProp? ) );
+            prevExpr = Expression.Assign( prevExpr, objNewValue );
+        }
+
+        var lambdaExpr = Expression.Lambda<Action<TRoot, object?>>(prevExpr!, [rootArg, newValueArg]);
 
         return lambdaExpr.Compile();
     }
