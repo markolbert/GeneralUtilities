@@ -11,14 +11,21 @@
 	  <Product>J4JSoftware general utilities</Product>
 	  <Description>general utilities</Description>
 	  <Copyright>© Mark A. Olbert all rights reserved</Copyright>
-	  <RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-	  <RepositoryType>git</RepositoryType>
 	  <Version>1.0.0.0</Version>
 	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
+	  <RepositoryUrl>https://github.com/markolbert/GeneralUtilities</RepositoryUrl>
+	  <RepositoryType>git</RepositoryType>
+	  <EmbedUntrackedSources>true</EmbedUntrackedSources>
+	  <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	  <PackageReleaseNotes>initial release</PackageReleaseNotes>
 	  <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+	</ItemGroup>
+	
 	<ItemGroup>
 		<None Include="../readme.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
