@@ -36,7 +36,11 @@ public class ExpressionHelpers( ILoggerFactory? loggerFactory )
         [ CallerMemberName ] string caller = ""
     )
     {
-        propInfo = propExpr.Body is MemberExpression memExpr ? (PropertyInfo) memExpr.Member : null;
+        propInfo = propExpr.Body is MemberExpression memExpr ? memExpr.Member as PropertyInfo : null;
+
+        propInfo ??= propExpr.Body is UnaryExpression { Operand: MemberExpression me } unaryExpr
+            ? me.Member as PropertyInfo
+            : null;
 
         if( propInfo == null )
             _logger?.InvalidExpression( propExpr.Body.NodeType, caller );
@@ -60,6 +64,12 @@ public class ExpressionHelpers( ILoggerFactory? loggerFactory )
                 case MemberExpression memExpr:
                     retVal.Add( (PropertyInfo) memExpr.Member );
                     curExpr = memExpr.Expression;
+
+                    break;
+
+                case UnaryExpression { Operand: MemberExpression me }:
+                    retVal.Add( (PropertyInfo) me.Member );
+                    curExpr = me.Expression;
 
                     break;
 
